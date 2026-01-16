@@ -39,5 +39,17 @@ jobs:
         run: |
           echo "STAGE=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
 
+      - name: Load environment variables dynamically
+        shell: bash
+        run: |
+          ENV="${{ github.event.inputs.environment }}"
+          echo "Loading variables for $ENV"
+          # Export to GitHub Actions environment
+          echo "AWS_CLIENT_ID=${{ secrets.AWS_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "AWS_CLIENT_SECRET=${{ secrets.AWS_CLIENT_SECRET }}" >> $GITHUB_ENV
+          echo "FIRST_ENV=${{ vars.FIRST_ENV }}" >> $GITHUB_ENV
+          echo "URL=${{ vars.URL }}" >> $GITHUB_ENV
+          echo "STAGE=$ENV" >> $GITHUB_ENV
+
       - name: Print all environment variables
         run: printenv | sort
