@@ -17,7 +17,6 @@ on:
         options:
           - dev
           - stage
-          - prod
 
   push:
     branches:
