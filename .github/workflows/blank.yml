@@ -1,0 +1,46 @@
+name: Deploy Job
+run-name: Deploy ${{ github.event.inputs.branch }} to ${{ github.event.inputs.environment }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to Deploy"
+        required: true
+        default: main
+        type: string
+
+      environment:
+        description: "Select Environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - stg
+          - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # This checks environment-scoped vars, secrets, and approvals
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Set deployment stage
+        run: |
+          echo "STAGE=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+
+      - name: Print all environment variables
+        run: printenv | sort
