@@ -1,5 +1,5 @@
 name: Deploy Job
-run-name: Deploy ${{ github.event.inputs.branch }} to ${{ github.event.inputs.environment }}
+run-name: Deploy ${{ github.event.inputs.branch || github.ref_name }} to ${{ github.event.inputs.environment || 'prod' }}
 
 on:
   workflow_dispatch:
@@ -19,32 +19,41 @@ on:
           - stage
           - prod
 
+  push:
+    branches:
+      - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # This checks environment-scoped vars, secrets, and approvals
-    environment: ${{ github.event.inputs.environment }}
+    # Run only for manual trigger OR main push
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_name == 'main')
+    environment: ${{ github.event.inputs.environment || 'prod' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch }}
+          # Use input branch for manual run, branch of push for automatic run
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Set deployment stage
-        run: |
-          echo "STAGE=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-
       - name: Load environment variables dynamically
         shell: bash
         run: |
-          ENV="${{ github.event.inputs.environment }}"
-          echo "Loading variables for $ENV"
-          # Export to GitHub Actions environment
+          # Determine environment
+          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF_NAME}" == "main" ]]; then
+            ENV="prod"
+          else
+            ENV="${{ github.event.inputs.environment }}"
+          fi
+
+          echo "Deploying to environment: $ENV"
+
+          # Export environment-specific variables
           echo "AWS_CLIENT_ID=${{ secrets.AWS_CLIENT_ID }}" >> $GITHUB_ENV
           echo "AWS_CLIENT_SECRET=${{ secrets.AWS_CLIENT_SECRET }}" >> $GITHUB_ENV
           echo "FIRST_ENV=${{ vars.FIRST_ENV }}" >> $GITHUB_ENV
@@ -53,3 +62,4 @@ jobs:
 
       - name: Print all environment variables
         run: printenv | sort
+
