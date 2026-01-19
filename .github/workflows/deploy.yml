@@ -74,3 +74,6 @@ jobs:
       - name: Print all environment variables
         run: printenv | sort
 
+      - name: Print all environment variables
+        run: cat .env
+
