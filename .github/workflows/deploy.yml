@@ -35,6 +35,17 @@ jobs:
           # Use input branch for manual run, branch of push for automatic run
           ref: ${{ github.event.inputs.branch || github.ref_name }}
 
+      - name: Validate branch exists
+        run: |
+          BRANCH="${{ github.event.inputs.branch || github.ref_name }}"
+
+          git fetch origin "$BRANCH" || {
+            echo "❌ Branch '$BRANCH' does not exist in origin"
+            exit 1
+          }
+
+          echo "✅ Branch '$BRANCH' exists"
+          
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
