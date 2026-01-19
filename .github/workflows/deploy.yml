@@ -69,7 +69,7 @@ jobs:
           echo "FIRST_ENV=${{ vars.FIRST_ENV }}" >> $GITHUB_ENV
           echo "URL=${{ vars.URL }}" >> $GITHUB_ENV
           echo "STAGE=$ENV" >> $GITHUB_ENV
-          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+          echo "BRANCH=${{ github.event.inputs.branch || github.ref_name }}" >> $GITHUB_ENV
 
       - name: Print all environment variables
         run: printenv | sort
