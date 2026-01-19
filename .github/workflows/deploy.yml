@@ -50,9 +50,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-
-      - name: Load environment variables dynamically
-        shell: bash
+          
+      - name: Generate .env file
         run: |
           # Determine environment
           if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF_NAME}" == "main" ]]; then
@@ -61,15 +60,16 @@ jobs:
             ENV="${{ github.event.inputs.environment }}"
           fi
 
-          echo "Deploying to environment: $ENV"
-
-          # Export environment-specific variables
-          echo "AWS_CLIENT_ID=${{ secrets.AWS_CLIENT_ID }}" >> $GITHUB_ENV
-          echo "AWS_CLIENT_SECRET=${{ secrets.AWS_CLIENT_SECRET }}" >> $GITHUB_ENV
-          echo "FIRST_ENV=${{ vars.FIRST_ENV }}" >> $GITHUB_ENV
-          echo "URL=${{ vars.URL }}" >> $GITHUB_ENV
           echo "STAGE=$ENV" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.event.inputs.branch || github.ref_name }}" >> $GITHUB_ENV
+
+          cat <<EOF > .env
+          BRANCH=${{ github.event.inputs.branch || github.ref_name }}
+          AWS_CLIENT_ID=${{ secrets.AWS_CLIENT_ID }}
+          AWS_CLIENT_SECRET=${{ secrets.AWS_CLIENT_SECRET }}
+          FIRST_ENV=${{ vars.FIRST_ENV }}
+          URL=${{ vars.URL }}
+          STAGE=$ENV
+          EOF
 
       - name: Print all environment variables
         run: printenv | sort
