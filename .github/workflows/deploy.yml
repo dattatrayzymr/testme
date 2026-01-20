@@ -126,5 +126,3 @@ jobs:
           asset_name: Prod-release-v${{ steps.versioning.outputs.version }}.zip
           overwrite: false
           body: ${{ steps.read_release.outputs.RELEASE_BODY }}
-        
-
