@@ -104,7 +104,12 @@ jobs:
 
       - name: Create zip artifact
         if: env.SKIP_RELEASE != 'true'
-        run: zip -r prod-release-code.zip .
+        run: |
+          zip -r prod-release-code.zip . \
+            -x "node_modules/*" \
+            -x ".build/*" \
+            -x ".git/*" \
+            -x "coverage/*"
 
       - name: Read release notes
         id: read_release
