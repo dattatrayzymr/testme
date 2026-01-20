@@ -29,6 +29,12 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_name == 'main')
     environment: ${{ inputs.environment || 'prod' }}
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Use input branch for manual run, branch of push for automatic run
+          ref: ${{ inputs.branch || github.ref_name }}
+
       - name: Validate branch exists
         run: |
           BRANCH="${{ inputs.branch || github.ref_name }}"
@@ -39,12 +45,6 @@ jobs:
           }
 
           echo "✅ Branch '$BRANCH' exists"
-
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          # Use input branch for manual run, branch of push for automatic run
-          ref: ${{ inputs.branch || github.ref_name }}
           
       - name: Setup Node.js
         uses: actions/setup-node@v3
