@@ -75,3 +75,6 @@ jobs:
       - name: Print all environment variables
         run: cat .env
 
+      - name: Install Dependencies
+        run: npm ci        
+
