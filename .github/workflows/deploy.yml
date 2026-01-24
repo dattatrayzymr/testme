@@ -30,7 +30,7 @@ jobs:
     environment: ${{ github.event.inputs.environment || 'prod' }}
     steps:
       - uses: trstringer/manual-approval@v1
-        if: ${{ github.event_name == 'push' || github.event.inputs.environment == 'prod' }}
+        if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
         timeout-minutes: 1
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
